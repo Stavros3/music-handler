@@ -29,6 +29,7 @@ def configure_qt_runtime() -> None:
 configure_qt_runtime()
 
 from PySide6.QtCore import QSignalBlocker, Qt, QTimer, QUrl
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtWidgets import (
     QApplication,
@@ -364,12 +365,18 @@ class DuplicateMusicFinderWindow(QMainWindow):
                 keep_button.setText("Keeping")
                 keep_button.setEnabled(False)
 
+            folder_button = QPushButton(str(entry.folder_path))
+            folder_button.setFlat(True)
+            folder_button.setCursor(Qt.PointingHandCursor)
+            folder_button.setStyleSheet("text-align: left; color: #1a5fb4;")
+            folder_button.clicked.connect(lambda _checked=False, folder=entry.folder_path: self.open_folder(folder))
+
             preview_button = QPushButton("Play/Pause")
             preview_button.clicked.connect(lambda _checked=False, path=str(entry.full_path): self.play_or_pause(path))
 
             self.files_table.setCellWidget(index, 0, keep_button)
             self.files_table.setItem(index, 1, QTableWidgetItem(entry.file_name))
-            self.files_table.setItem(index, 2, QTableWidgetItem(str(entry.folder_path)))
+            self.files_table.setCellWidget(index, 2, folder_button)
             self.files_table.setItem(index, 3, QTableWidgetItem(entry.extension))
             self.files_table.setItem(index, 4, QTableWidgetItem(entry.size_label))
             self.files_table.setCellWidget(index, 5, preview_button)
@@ -390,6 +397,9 @@ class DuplicateMusicFinderWindow(QMainWindow):
 
         self.refresh_group_labels()
         self.update_delete_button_state()
+
+    def open_folder(self, folder: Path) -> None:
+        QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
 
     def refresh_group_labels(self) -> None:
         for index, group in enumerate(self.groups):
