@@ -1,3 +1,5 @@
 /downloads/* filter=lfs diff=lfs merge=lfs -text
+Duplicate[[:space:]]Music[[:space:]]Finder[[:space:]]MacOS filter=lfs diff=lfs merge=lfs -text
+Duplicate[[:space:]]Music[[:space:]]Finder[[:space:]]Windows.exe filter=lfs diff=lfs merge=lfs -text
 download/** filter=lfs diff=lfs merge=lfs -text
 downloads/** filter=lfs diff=lfs merge=lfs -text
