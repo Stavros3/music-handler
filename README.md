@@ -11,6 +11,8 @@
 - macOS: `Run Duplicate Music Finder - macOS.command`
 - Linux: `Run Duplicate Music Finder - Linux.sh`
 
+For packaged downloads and OS-specific steps for opening unsigned app builds, see `downloads/README.md`.
+
 Python must already be installed on the computer.
 
 If Python or the required packages are missing, the launcher will try to install them.
