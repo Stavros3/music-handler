@@ -33,6 +33,7 @@ from PySide6.QtGui import QDesktopServices
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtWidgets import (
     QApplication,
+    QDialog,
     QFileDialog,
     QGroupBox,
     QHBoxLayout,
@@ -46,6 +47,7 @@ from PySide6.QtWidgets import (
     QSlider,
     QTableWidget,
     QTableWidgetItem,
+    QTextBrowser,
     QVBoxLayout,
     QWidget,
     QHeaderView,
@@ -111,6 +113,7 @@ class ClickablePathLabel(QLabel):
         self.setCursor(Qt.PointingHandCursor)
         self.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.setStyleSheet("color: #1a5fb4;")
+        self.setToolTip(text)
 
     def mousePressEvent(self, event) -> None:  # type: ignore[override]
         if event.button() == Qt.LeftButton:
@@ -144,6 +147,9 @@ class DuplicateMusicFinderWindow(QMainWindow):
 
         self.scan_button = QPushButton("Scan")
         self.scan_button.clicked.connect(self.scan_folder)
+
+        self.about_button = QPushButton("About")
+        self.about_button.clicked.connect(self.show_about_dialog)
 
         self.group_list = QListWidget()
         self.group_list.currentRowChanged.connect(self.display_group)
@@ -267,6 +273,8 @@ class DuplicateMusicFinderWindow(QMainWindow):
         summary_layout.addWidget(self.stop_button)
         summary_layout.addSpacing(16)
         summary_layout.addWidget(self.delete_button)
+        summary_layout.addSpacing(16)
+        summary_layout.addWidget(self.about_button, 0, Qt.AlignLeft)
         summary_layout.addStretch(1)
         content_row.addWidget(summary_box, 0)
 
@@ -414,6 +422,34 @@ class DuplicateMusicFinderWindow(QMainWindow):
     def open_folder(self, folder: Path) -> None:
         QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
 
+    def show_about_dialog(self) -> None:
+        dialog = QDialog(self)
+        dialog.setWindowTitle("About")
+        dialog.resize(520, 320)
+
+        layout = QVBoxLayout(dialog)
+
+        browser = QTextBrowser(dialog)
+        browser.setOpenExternalLinks(True)
+        browser.setHtml(
+            """
+            <h2>Duplicate Music Finder</h2>
+            <p>By <b>@stavik.music</b></p>
+            <p>Download: <a href="https://github.com/Stavros3/music-handler">https://github.com/Stavros3/music-handler</a></p>
+            <p>Instagram: @stavik.music</p>
+            <p>Email: s.oikonomidis@gmail.com</p>
+            <p>Created in 2026</p>
+            <p>All rights reserved</p>
+            """
+        )
+        layout.addWidget(browser)
+
+        close_button = QPushButton("Close", dialog)
+        close_button.clicked.connect(dialog.accept)
+        layout.addWidget(close_button)
+
+        dialog.exec()
+
     def refresh_group_labels(self) -> None:
         for index, group in enumerate(self.groups):
             suffix = "reviewed" if group.reviewed else "choose one"
@@ -466,14 +502,17 @@ class DuplicateMusicFinderWindow(QMainWindow):
         if self.process_completed:
             return
 
-        if not self.groups or any(not group.reviewed for group in self.groups):
-            QMessageBox.warning(self, "Selection Required", "Choose one file to keep in every duplicate group before deleting.")
+        resolved_groups = [group for group in self.groups if group.reviewed]
+        unresolved_groups = [group for group in self.groups if not group.reviewed]
+
+        if not resolved_groups:
+            QMessageBox.warning(self, "Selection Required", "Choose at least one duplicate group to resolve before deleting.")
             return
 
         answer = QMessageBox.question(
             self,
             "Confirm Removal",
-            "The unselected duplicate files will be sent to Trash / Recycle Bin. Continue?",
+            "The unselected files from the resolved duplicate groups will be sent to Trash / Recycle Bin. Continue?",
         )
         if answer != QMessageBox.Yes:
             return
@@ -482,7 +521,7 @@ class DuplicateMusicFinderWindow(QMainWindow):
 
         deleted_files = 0
         kept_files = 0
-        for group in self.groups:
+        for group in resolved_groups:
             selected = group.selected_entry
             if selected is None:
                 continue
@@ -495,17 +534,29 @@ class DuplicateMusicFinderWindow(QMainWindow):
                 deleted_files += 1
 
         self.deleted_files_label.setText(f"Moved to Trash / Recycle Bin: {deleted_files}")
+        self.groups = unresolved_groups
         self.group_list.clear()
         self.files_table.setRowCount(0)
-        self.groups = []
         self.current_group_index = None
-        self.process_completed = True
-        self.duplicate_groups_label.setText("Duplicate groups: 0")
-        self.status_label.setText(f"Finished. Kept {kept_files} files and moved {deleted_files} duplicates to Trash / Recycle Bin.")
+        self.process_completed = len(self.groups) == 0
+        self.duplicate_groups_label.setText(f"Duplicate groups: {len(self.groups)}")
+
+        if self.groups:
+            for group in self.groups:
+                self.group_list.addItem(f"{group.normalized_title} ({len(group.entries)})")
+            self.refresh_group_labels()
+            self.group_list.setCurrentRow(0)
+            self.status_label.setText(
+                f"Finished. Kept {kept_files} files and moved {deleted_files} duplicates to Trash / Recycle Bin. "
+                f"{len(self.groups)} duplicate groups still need review."
+            )
+        else:
+            self.status_label.setText(f"Finished. Kept {kept_files} files and moved {deleted_files} duplicates to Trash / Recycle Bin.")
+
         self.update_delete_button_state()
 
     def update_delete_button_state(self) -> None:
-        can_delete = bool(self.groups) and not self.process_completed and all(group.reviewed for group in self.groups)
+        can_delete = bool(self.groups) and not self.process_completed and any(group.reviewed for group in self.groups)
         self.delete_button.setEnabled(can_delete)
 
     def on_position_changed(self, position: int) -> None:
