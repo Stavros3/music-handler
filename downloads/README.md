@@ -2,6 +2,8 @@
 
 This folder contains packaged builds of Duplicate Music Finder.
 
+Users can download only the file they need from this folder on GitHub. There is no need to download the entire project.
+
 ## Files In This Folder
 
 - `Windows - Duplicate Music Finder.exe`: standalone Windows build

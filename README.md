@@ -2,6 +2,22 @@
 
 ## Download And Open
 
+Most users do not need to download the entire project.
+
+1. Open the `downloads` folder in this repository on GitHub
+2. Download only the file for your system:
+
+- Windows: `Windows - Duplicate Music Finder.exe`
+- macOS: `MacOS - Duplicate Music Finder.zip`
+
+3. Open the file you downloaded
+
+For packaged downloads and OS-specific steps for opening unsigned app builds, see `downloads/README.md`.
+
+## Run From Source
+
+If you want to run the project from source instead of using the packaged downloads:
+
 1. Download this project from GitHub as a ZIP
 2. Extract the ZIP
 3. Open the extracted folder
@@ -10,8 +26,6 @@
 - Windows: `Run Duplicate Music Finder - Windows.bat`
 - macOS: `Run Duplicate Music Finder - macOS.command`
 - Linux: `Run Duplicate Music Finder - Linux.sh`
-
-For packaged downloads and OS-specific steps for opening unsigned app builds, see `downloads/README.md`.
 
 Python must already be installed on the computer.
 
