@@ -4,7 +4,7 @@ This folder contains packaged builds of Duplicate Music Finder.
 
 ## Files In This Folder
 
-- `Duplicate Music Finder Windows.exe`: standalone Windows build
+- `Windows - Duplicate Music Finder.exe`: standalone Windows build
 - `MacOS - Duplicate Music Finder.zip`: macOS packaged build
 
 If a Linux build is added later, include it in this folder and follow the Linux steps below.
@@ -13,7 +13,7 @@ If a Linux build is added later, include it in this folder and follow the Linux 
 
 ### Open The App
 
-1. Double-click `Duplicate Music Finder Windows.exe`.
+1. Double-click `Windows - Duplicate Music Finder.exe`.
 
 ### If Windows Blocks The App
 
@@ -24,7 +24,7 @@ Because the app is not code-signed, Windows may show a Microsoft Defender SmartS
 
 If Windows still blocks the file:
 
-1. Right-click `Duplicate Music Finder Windows.exe`
+1. Right-click `Windows - Duplicate Music Finder.exe`
 2. Choose `Properties`
 3. On the `General` tab, check `Unblock` if it appears
 4. Click `Apply`
