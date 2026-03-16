@@ -67,3 +67,19 @@ By `@stavik.music`
 3. Listen if needed
 4. Choose which file to keep
 5. Send the rest to Trash / Recycle Bin
+
+## Standalone Build
+
+To build a standalone app:
+
+- Windows: `build-windows.bat`
+- macOS: `build-macos.command`
+- Linux: `build-linux.sh`
+
+The packaged app will be created in the `dist` folder.
+
+Note:
+
+- Windows standalone can be built on Windows
+- macOS standalone should be built on macOS
+- Linux standalone should be built on Linux
