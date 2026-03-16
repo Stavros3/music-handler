@@ -6,6 +6,13 @@ cd "$SCRIPT_DIR"
 
 xattr -dr com.apple.quarantine "$SCRIPT_DIR" >/dev/null 2>&1 || true
 
+if command -v xcodebuild >/dev/null 2>&1; then
+  if ! xcodebuild -license check >/dev/null 2>&1; then
+    osascript -e 'display dialog "The Xcode license must be accepted before building the macOS app.\n\nOpen Terminal and run:\n\nsudo xcodebuild -license\n\nThen run this build again." buttons {"OK"} default button "OK"'
+    exit 1
+  fi
+fi
+
 if command -v python3 >/dev/null 2>&1; then
   PYTHON_EXE="python3"
 elif command -v python >/dev/null 2>&1; then
