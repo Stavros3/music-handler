@@ -4,6 +4,8 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
+xattr -dr com.apple.quarantine "$SCRIPT_DIR" >/dev/null 2>&1 || true
+
 PYTHON_EXE=""
 
 if command -v python3 >/dev/null 2>&1; then
