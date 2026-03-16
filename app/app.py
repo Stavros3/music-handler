@@ -434,10 +434,10 @@ class DuplicateMusicFinderWindow(QMainWindow):
         browser.setHtml(
             """
             <h2>Duplicate Music Finder</h2>
-            <p>By <b>@stavik.music</b></p>
+            <p>By <b>@Stavik.music</b></p>
             <p>Download: <a href="https://github.com/Stavros3/music-handler">https://github.com/Stavros3/music-handler</a></p>
-            <p>Instagram: @stavik.music</p>
-            <p>Email: s.oikonomidis@gmail.com</p>
+            <p>Instagram: @Stavik.music</p>
+            <p>Email: s.oikonomidis37@gmail.com</p>
             <p>Created in 2026</p>
             <p>All rights reserved</p>
             """
