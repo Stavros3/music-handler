@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import sys
 from pathlib import Path
 from PyInstaller.utils.hooks import collect_dynamic_libs, collect_submodules
 
@@ -48,3 +49,11 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
 )
+
+if sys.platform == "darwin":
+    app = BUNDLE(
+        exe,
+        name="Duplicate Music Finder.app",
+        icon=None,
+        bundle_identifier="com.stavikmusic.duplicatemusicfinder",
+    )

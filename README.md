@@ -81,5 +81,5 @@ The packaged app will be created in the `dist` folder.
 Note:
 
 - Windows standalone can be built on Windows
-- macOS standalone should be built on macOS
+- macOS standalone should be built on macOS and will create a `.app` bundle
 - Linux standalone should be built on Linux
