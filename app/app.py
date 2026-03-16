@@ -28,7 +28,7 @@ def configure_qt_runtime() -> None:
 
 configure_qt_runtime()
 
-from PySide6.QtCore import QSignalBlocker, Qt, QTimer, QUrl
+from PySide6.QtCore import QSignalBlocker, Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtWidgets import (
@@ -100,6 +100,22 @@ class DuplicateGroup:
         if self.selected_keep_index < 0 or self.selected_keep_index >= len(self.entries):
             return None
         return self.entries[self.selected_keep_index]
+
+
+class ClickablePathLabel(QLabel):
+    clicked = Signal()
+
+    def __init__(self, text: str) -> None:
+        super().__init__(text)
+        self.setWordWrap(True)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.setStyleSheet("color: #1a5fb4;")
+
+    def mousePressEvent(self, event) -> None:  # type: ignore[override]
+        if event.button() == Qt.LeftButton:
+            self.clicked.emit()
+        super().mousePressEvent(event)
 
 
 class DuplicateMusicFinderWindow(QMainWindow):
@@ -365,18 +381,15 @@ class DuplicateMusicFinderWindow(QMainWindow):
                 keep_button.setText("Keeping")
                 keep_button.setEnabled(False)
 
-            folder_button = QPushButton(str(entry.folder_path))
-            folder_button.setFlat(True)
-            folder_button.setCursor(Qt.PointingHandCursor)
-            folder_button.setStyleSheet("text-align: left; color: #1a5fb4;")
-            folder_button.clicked.connect(lambda _checked=False, folder=entry.folder_path: self.open_folder(folder))
+            folder_label = ClickablePathLabel(str(entry.folder_path))
+            folder_label.clicked.connect(lambda folder=entry.folder_path: self.open_folder(folder))
 
             preview_button = QPushButton("Play/Pause")
             preview_button.clicked.connect(lambda _checked=False, path=str(entry.full_path): self.play_or_pause(path))
 
             self.files_table.setCellWidget(index, 0, keep_button)
             self.files_table.setItem(index, 1, QTableWidgetItem(entry.file_name))
-            self.files_table.setCellWidget(index, 2, folder_button)
+            self.files_table.setCellWidget(index, 2, folder_label)
             self.files_table.setItem(index, 3, QTableWidgetItem(entry.extension))
             self.files_table.setItem(index, 4, QTableWidgetItem(entry.size_label))
             self.files_table.setCellWidget(index, 5, preview_button)
@@ -563,11 +576,25 @@ class DuplicateMusicFinderWindow(QMainWindow):
         self.timeline_label.setText(f"{format_mm_ss(self.player.position())} / {format_mm_ss(self.player.duration())}")
 
     def on_player_error(self, _error: QMediaPlayer.Error, error_string: str) -> None:
-        self.audio_available = False
+        failed_file_name = Path(self.current_track_path).name if self.current_track_path else "This file"
+        self.position_timer.stop()
         self.current_track_path = None
-        self.apply_audio_availability()
+        self.stop_button.setEnabled(False)
+        with QSignalBlocker(self.seek_slider):
+            self.seek_slider.setRange(0, 0)
+            self.seek_slider.setValue(0)
+        self.timeline_label.setText("00:00 / 00:00")
+        self.playback_label.setText("Nothing playing.")
+        self.status_label.setText("Playback failed for this file.")
+
+        friendly_message = (
+            f"{failed_file_name} could not be played.\n\n"
+            "It may be corrupted, incomplete, or not a real MP3/WAV file."
+        )
         if error_string:
-            QMessageBox.warning(self, "Playback Unavailable", error_string)
+            friendly_message += f"\n\nDetails: {error_string}"
+
+        QMessageBox.warning(self, "Could Not Play File", friendly_message)
 
 
 def main() -> int:
